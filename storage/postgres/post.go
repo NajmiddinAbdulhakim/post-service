@@ -1,0 +1,113 @@
+package postgres
+
+import (
+	"fmt"
+
+
+	"github.com/gofrs/uuid"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	pb "github.com/template-service/genproto"
+)
+
+type postRepo struct {
+	db *sqlx.DB
+}
+
+//NewUserRepo ...
+func NewPostRepo(db *sqlx.DB) *postRepo {
+	return &postRepo{db: db}
+}
+
+func (r *postRepo) CreatePost(post *pb.Post) (*pb.Post, error) {
+	tx, err := r.db.Begin()
+	if err != nil {
+		tx.Rollback()
+		return post , err 
+	}
+	
+	postID, err := uuid.NewV4()
+	var posted pb.Post
+	if err != nil {
+		tx.Rollback()
+		return nil, err 
+	}
+	post.Id = postID.String()
+	query := `INSERT INTO posts (id, user_id, title, description)
+	VALUES ($1, $2, $3, $4) RETURNING id, title, description`
+	err = tx.QueryRow(query, post.Id, post.UserId, post.Title, post.Description).Scan(	
+		&posted.Id,
+		&posted.Title, 
+		&posted.Description,
+	)
+	if err != nil{
+		tx.Rollback()
+		return nil, fmt.Errorf(`error insert post > %v`,err) 
+	}
+	mediaID, err:= uuid.NewV4()
+	if err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf(`error gen uuid by media > %v`,err) 
+	}
+	for _, media := range post.Medias {
+		media.Id = mediaID.String()
+		mQuery := `INSERT INTO media (id, post_id, link, type) 
+		VALUES ($1, $2, $3, $4) RETURNING id, link, type`
+		var media pb.Media
+		
+		err = tx.QueryRow(mQuery, media.Id, posted.Id, media.Link, media.Type).Scan(
+			&media.Id, &media.Link, &media.Type)
+		if err != nil{
+			tx.Rollback()
+			return nil, fmt.Errorf(`error insert media > %v`,err) 
+		}	
+		posted.Medias = append(post.Medias,&media)
+	}
+	tx.Commit()
+	return &posted, nil 
+
+}
+
+func (r *postRepo) GetUserPosts(userID string) ([]*pb.Post, error) {
+	var posts []*pb.Post
+
+	query := `SELECT id, title, description FROM posts WHERE user_id = $1`
+	rowss, err := r.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	// defer rows.Close()
+	for rowss.Next() {
+		var post pb.Post
+		err := rowss.Scan(
+			&post.Id,
+			&post.Title, 
+			&post.Description,
+		)
+		if err != nil {
+			return nil, err
+		}
+		queryM := `SELECT id, link, type FROM media WHERE post_id = $1`
+		rows, err := r.db.Query(queryM, post.Id)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var media pb.Media
+			err = rows.Scan(
+				&media.Id,
+				&media.Link, 
+				&media.Type,
+			)
+			if err != nil {
+				return nil, err
+			}
+			post.Medias = append(post.Medias, &media)
+		}
+		posts = append(posts, &post)
+	}
+	return posts, nil
+}
+
+
+
