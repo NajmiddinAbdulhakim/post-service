@@ -2,7 +2,10 @@ CREATE TABLE IF NOT EXISTS posts (
     id uuid NOT NULL PRIMARY KEY,
     user_id uuid NOT NULL,
     title TEXT NOT NULL,
-    description TEXT
+    description TEXT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS media (

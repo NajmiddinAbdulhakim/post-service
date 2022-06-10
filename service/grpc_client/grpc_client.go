@@ -24,7 +24,7 @@ func New(cfg config.Config) (*GrpcClient, error) {
 		fmt.Sprintf("%s:%d", cfg.UserServiceHost, cfg.UserServicePort),
 		grpc.WithInsecure())
 	if err != nil {
-		return nil, fmt.Errorf("post service dial host: %s port: %d",
+		return nil, fmt.Errorf("User service dial host: %s port: %d",
 			cfg.UserServiceHost, cfg.UserServicePort)
 	}
     

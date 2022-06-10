@@ -39,6 +39,26 @@ func (s *PostService) CreatePost(ctx context.Context, req *pb.Post) (*pb.Post, e
 	return post, nil
 }
 
+func (s *PostService) UpdatePost(ctx context.Context, req *pb.Post) (*pb.BoolResponse, error) {
+	post, err := s.storage.Post().UpdatePost(req)
+	if err != nil {
+		s.logger.Error(`failed while update post`, l.Error(err))
+		return nil, status.Error(codes.Internal,`failed while update post` )	
+	}
+	return &pb.BoolResponse{Success: post}, nil
+}
+
+func (s *PostService) DeletePost(ctx context.Context, req *pb.PostByIdReq) (*pb.BoolResponse, error) {
+	res, err := s.storage.Post().DeletePost(req.PostId)
+	if err != nil {
+		s.logger.Error(`Filed while delete post`, l.Error(err))
+		return nil, status.Error(codes.Internal,`Filed while delete post` )
+	}
+	return &pb.BoolResponse{Success: res}, nil
+}
+
+
+
 func (s *PostService) GetUserPosts(ctx context.Context, req *pb.GetUserPostsReq) (*pb.GetUserPostsRes, error) {
 	posts, err := s.storage.Post().GetUserPosts(req.UserId)
 	if err != nil {
@@ -48,7 +68,7 @@ func (s *PostService) GetUserPosts(ctx context.Context, req *pb.GetUserPostsReq)
 	return &pb.GetUserPostsRes{Posts: posts}, nil
 }
 
-func (s *PostService) GetPostById(ctx context.Context, req *pb.GetPostReq) (*pb.Post, error) {
+func (s *PostService) GetPostById(ctx context.Context, req *pb.PostByIdReq) (*pb.Post, error) {
 	post, err := s.storage.Post().GetPostById(req.PostId)
 	if err != nil {
 		s.logger.Error(`Filed while getting post by id`, l.Error(err))
@@ -57,7 +77,16 @@ func (s *PostService) GetPostById(ctx context.Context, req *pb.GetPostReq) (*pb.
 	return post, nil
 }
 
-func (s *PostService) GetPostWithUser(ctx context.Context, req *pb.GetPostReq) (*pb.GetUserWithPostRes, error) {
+func (s *PostService) GetAllPosts(ctx context.Context, req *pb.Empty) (*pb.GetAllPostsRes, error) {
+	posts, err := s.storage.Post().GetAllPosts()
+	if err != nil {
+		s.logger.Error(`Filed while getting all posts`, l.Error(err))
+		return nil, status.Error(codes.Internal,`Filed while getting all posts` )
+	}
+	return &pb.GetAllPostsRes{Posts: posts}, nil
+}
+
+func (s *PostService) GetPostWithUser(ctx context.Context, req *pb.PostByIdReq) (*pb.GetPostWithUserRes, error) {
 	post, err := s.storage.Post().GetPostById(req.PostId)
 	if err != nil {
 		s.logger.Error(`Filed while getting posts user by id`, l.Error(err))
@@ -69,30 +98,10 @@ func (s *PostService) GetPostWithUser(ctx context.Context, req *pb.GetPostReq) (
 		return nil, status.Error(codes.Internal,`Filed while getting user by id` )
 	}
 
-	return &pb.GetUserWithPostRes{
+	return &pb.GetPostWithUserRes{
 		FirstName: user.FirstName,
 		LastName: user.LastName,
 		Post: post,
 		}, nil
 }
 
-	// func (s *PostService) GetUserWithPost(ctx context.Context, req *pb.GetUserPostsReq) (*pb.GetUserWithPostRes, error) {
-	// 	user, err := s.client.UserService().GetUserById(ctx, &pb.UserByIdReq{Id: req.UserId})
-	// 	if err != nil {
-	// 		s.logger.Error(`Filed while getting user by id`, l.Error(err))
-	// 		return nil, status.Error(codes.Internal,`Filed while getting user by id` )
-	// 	}
-		
-	// 	posts, err := s.storage.Post().GetUserPosts(user.Id)
-	// 	if err != nil {
-	// 		s.logger.Error(`Filed while getting posts user by id`, l.Error(err))
-	// 		return nil, status.Error(codes.Internal,`Filed while getting posts user by id` )
-	// 	}
-	// 	user.Posts = posts
-	
-	// 	return &pb.GetUserWithPostRes{
-	// 		FirstName: user.FirstName,
-	// 		LastName: user.LastName,
-	// 		Post: posts,
-	// 		}, nil
-	// }
