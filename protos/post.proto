@@ -23,6 +23,7 @@ message Post {
     string deletedAt = 8;
 }
 
+
 message BoolResponse {
     bool success = 1;
 }

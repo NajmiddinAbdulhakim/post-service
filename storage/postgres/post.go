@@ -37,9 +37,10 @@ func (r *postRepo) CreatePost(post *pb.Post) (*pb.Post, error) {
 	}
 	post.Id = postID.String()
 	query := `INSERT INTO posts (id, user_id, title, description, created_at)
-	VALUES ($1, $2, $3, $4,$5) RETURNING id, title, description, created_at`
+	VALUES ($1, $2, $3, $4,$5) RETURNING id, user_id, title, description, created_at`
 	err = tx.QueryRow(query, post.Id, post.UserId, post.Title, post.Description, time).Scan(	
 		&posted.Id,
+		&posted.UserId,
 		&posted.Title, 
 		&posted.Description,
 		&posted.CreatedAt,
