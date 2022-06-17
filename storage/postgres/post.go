@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-
+	pb "github.com/NajmiddinAbdulhakim/post-service/genproto"
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	pb "github.com/template-service/genproto"
 )
 
 type postRepo struct {
@@ -24,56 +23,56 @@ func (r *postRepo) CreatePost(post *pb.Post) (*pb.Post, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		tx.Rollback()
-		return post , err 
+		return post, err
 	}
-	
+
 	postID, err := uuid.NewV4()
 	time := time.Now()
 	var posted pb.Post
-	
+
 	if err != nil {
 		tx.Rollback()
-		return nil, err 
+		return nil, err
 	}
 	post.Id = postID.String()
 	query := `INSERT INTO posts (id, user_id, title, description, created_at)
 	VALUES ($1, $2, $3, $4,$5) RETURNING id, user_id, title, description, created_at`
-	err = tx.QueryRow(query, post.Id, post.UserId, post.Title, post.Description, time).Scan(	
+	err = tx.QueryRow(query, post.Id, post.UserId, post.Title, post.Description, time).Scan(
 		&posted.Id,
 		&posted.UserId,
-		&posted.Title, 
+		&posted.Title,
 		&posted.Description,
 		&posted.CreatedAt,
 	)
-	if err != nil{
+	if err != nil {
 		tx.Rollback()
-		return nil, fmt.Errorf(`error insert post > %v`,err) 
+		return nil, fmt.Errorf(`error insert post > %v`, err)
 	}
-	
+
 	var me []*pb.Media
 	for _, mediaa := range post.Medias {
 		mediaID, err := uuid.NewV4()
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf(`error gen uuid by media > %v`,err) 
+			return nil, fmt.Errorf(`error gen uuid by media > %v`, err)
 		}
 		// mediaa.Id = mediaID.String()
 		mQuery := `INSERT INTO media (id, post_id, link, type) 
 		VALUES ($1, $2, $3, $4) RETURNING id, post_id, link, type`
-		
+
 		var media pb.Media
-		
+
 		err = tx.QueryRow(mQuery, mediaID, posted.Id, mediaa.Link, mediaa.Type).Scan(
-			&media.Id,&media.PostId, &media.Link, &media.Type)
-		if err != nil{
+			&media.Id, &media.PostId, &media.Link, &media.Type)
+		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf(`error insert media > %v`,err) 
-		}	
-		me = append(me,&media)
+			return nil, fmt.Errorf(`error insert media > %v`, err)
+		}
+		me = append(me, &media)
 	}
 	posted.Medias = me
 	tx.Commit()
-	return &posted, nil 
+	return &posted, nil
 
 }
 
@@ -89,7 +88,7 @@ func (r *postRepo) GetPostById(postID string) (*pb.Post, error) {
 		err := rowss.Scan(
 			&post.Id,
 			&post.UserId,
-			&post.Title, 
+			&post.Title,
 			&post.Description,
 		)
 		if err != nil {
@@ -104,7 +103,7 @@ func (r *postRepo) GetPostById(postID string) (*pb.Post, error) {
 			var media pb.Media
 			err = rows.Scan(
 				&media.Id,
-				&media.Link, 
+				&media.Link,
 				&media.Type,
 			)
 			if err != nil {
@@ -119,7 +118,7 @@ func (r *postRepo) GetPostById(postID string) (*pb.Post, error) {
 func (r *postRepo) UpdatePost(post *pb.Post) (bool, error) {
 	time := time.Now()
 	query := `UPDATE posts SET title = $1, description = $2, updated_at = $3 WHERE id = $4 AND user_id = $5`
-	_, err := r.db.Exec(query, post.Title, post.Description,time, post.Id, post.UserId)
+	_, err := r.db.Exec(query, post.Title, post.Description, time, post.Id, post.UserId)
 	if err != nil {
 		return false, err
 	}
@@ -134,7 +133,7 @@ func (r *postRepo) UpdatePost(post *pb.Post) (bool, error) {
 
 }
 
-func (r *postRepo) DeletePost(postID string) (bool,error) {
+func (r *postRepo) DeletePost(postID string) (bool, error) {
 	time := time.Now()
 
 	query := `UPDATE posts SET deleted_at = $1 WHERE id = $2`
@@ -149,7 +148,7 @@ func (r *postRepo) DeletePost(postID string) (bool,error) {
 func (r *postRepo) GetAllPosts() ([]*pb.Post, error) {
 
 	var posts []*pb.Post
-	
+
 	query := `SELECT id, user_id, title, description FROM posts`
 	rowss, err := r.db.Query(query)
 	if err != nil {
@@ -161,7 +160,7 @@ func (r *postRepo) GetAllPosts() ([]*pb.Post, error) {
 		err := rowss.Scan(
 			&post.Id,
 			&post.UserId,
-			&post.Title, 
+			&post.Title,
 			&post.Description,
 		)
 		if err != nil {
@@ -176,7 +175,7 @@ func (r *postRepo) GetAllPosts() ([]*pb.Post, error) {
 			var media pb.Media
 			err = rows.Scan(
 				&media.Id,
-				&media.Link, 
+				&media.Link,
 				&media.Type,
 			)
 			if err != nil {
@@ -187,7 +186,7 @@ func (r *postRepo) GetAllPosts() ([]*pb.Post, error) {
 		posts = append(posts, &post)
 	}
 	return posts, nil
-	
+
 }
 
 func (r *postRepo) GetUserPosts(userID string) ([]*pb.Post, error) {
@@ -203,7 +202,7 @@ func (r *postRepo) GetUserPosts(userID string) ([]*pb.Post, error) {
 		var post pb.Post
 		err := rowss.Scan(
 			&post.Id,
-			&post.Title, 
+			&post.Title,
 			&post.Description,
 		)
 		if err != nil {
@@ -218,7 +217,7 @@ func (r *postRepo) GetUserPosts(userID string) ([]*pb.Post, error) {
 			var media pb.Media
 			err = rows.Scan(
 				&media.Id,
-				&media.Link, 
+				&media.Link,
 				&media.Type,
 			)
 			if err != nil {
@@ -230,7 +229,3 @@ func (r *postRepo) GetUserPosts(userID string) ([]*pb.Post, error) {
 	}
 	return posts, nil
 }
-
-
-
-

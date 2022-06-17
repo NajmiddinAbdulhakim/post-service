@@ -3,14 +3,14 @@ package main
 import (
 	"net"
 
-	"github.com/template-service/config"
-	pb "github.com/template-service/genproto"
-	"github.com/template-service/pkg/db"
-	"github.com/template-service/pkg/logger"
-	"github.com/template-service/service"
+	"github.com/NajmiddinAbdulhakim/post-service/config"
+	pb "github.com/NajmiddinAbdulhakim/post-service/genproto"
+	"github.com/NajmiddinAbdulhakim/post-service/pkg/db"
+	"github.com/NajmiddinAbdulhakim/post-service/pkg/logger"
+	"github.com/NajmiddinAbdulhakim/post-service/service"
+	grpcClient "github.com/NajmiddinAbdulhakim/post-service/service/grpc_client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	grpcClient "github.com/template-service/service/grpc_client"
 )
 
 func main() {
@@ -28,11 +28,11 @@ func main() {
 	if err != nil {
 		log.Fatal("sqlx connection to postgres error", logger.Error(err))
 	}
-	
+
 	grpcC, err := grpcClient.New(cfg)
 	if err != nil {
 		log.Fatal("grpc connection to userservice error", logger.Error(err))
-		return 
+		return
 	}
 
 	postService := service.NewPostService(connDB, log, grpcC)

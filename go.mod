@@ -1,4 +1,4 @@
-module github.com/template-service
+module github.com/NajmiddinAbdulhakim/post-service
 
 go 1.18
 
@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/spf13/cast v1.5.0
 	go.uber.org/zap v1.21.0
-	google.golang.org/grpc v1.46.2
+	google.golang.org/grpc v1.47.0
 )
 
 require (
@@ -19,5 +19,5 @@ require (
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
 	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 )
