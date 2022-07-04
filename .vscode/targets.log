@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jun 17 07:00:26 2022
+# Make data base, printed on Fri Jun 17 09:36:51 2022
 
 # Variables
 
@@ -127,7 +129,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2323
+GIO_LAUNCHED_DESKTOP_FILE_PID = 38178
 # automatic
 %F = $(notdir $%)
 # environment
@@ -197,7 +199,7 @@ SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-0005fbee-88ba-45d1-8ba0-c89a0d0699dd.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ff651ada-2246-4c50-a5db-c6d2af7ce7fc.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -277,9 +279,6 @@ WINDOWPATH = 2
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # environment
- 
-make: *** No rule to make target 'all'.  Stop.
-
 GJS_DEBUG_OUTPUT = stderr
 # default
 .RECIPEPREFIX := 
@@ -287,8 +286,9 @@ GJS_DEBUG_OUTPUT = stderr
 LC_ADDRESS = uz_UZ.UTF-8
 # environment
 LANG = C
+ 
 # environment
-VSCODE_PID = 2370
+VSCODE_PID = 38230
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -359,6 +359,6 @@ build:
 # strcache performance: lookups = 30 / hit rate = 20%
 # hash-table stats:
 # Load=24/8192=0%, Rehash=0, Collisions=1/30=3%
-# Finished Make data base on Fri Jun 17 07:00:27 2022
+# Finished Make data base on Fri Jun 17 09:36:51 2022
 
  
